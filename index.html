@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>dicomViewer.js</title>
+    <!--默认样式-->
+    <link href="./css/dicom-viewer.css" rel="stylesheet" type="text/css" />
+    <link href="./css/bootstrap.min.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div id="viewer-body">
+        <div id="viewer-icon-container">
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-layout" data-original-title="图片排版" data-placement="bottom">
+                <img src="./image/viewer-icon/layout.png">
+                <div>
+                    <div>
+                        <h4></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-return" data-original-title="重绘图像" data-placement="bottom">
+                <img src="./image/viewer-icon/revoked.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-length" data-original-title="测量工具" data-placement="bottom">
+                <img src="./image/viewer-icon/meature.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-angle" data-original-title="角度测量" data-placement="bottom">
+                <img src="./image/viewer-icon/angle.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-mark" data-original-title="标注工具" data-placement="bottom">
+                <img src="./image/viewer-icon/label.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" data-original-title="保存标记" data-placement="bottom">
+                <img src="./image/viewer-icon/save.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-scale" data-original-title="滚动缩放" data-placement="bottom">
+                <img src="./image/viewer-icon/zoom.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-part" data-original-title="局部放大" data-placement="bottom">
+                <img src="./image/viewer-icon/zoom-part.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-dicomInfo" data-original-title="Dicom信息" data-placement="bottom">
+                <img src="./image/viewer-icon/info.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-colorOpposite" data-original-title="颜色反转" data-placement="bottom">
+                <img src="./image/viewer-icon/invert-colors.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-windowLevel" data-original-title="窗位窗宽" data-placement="bottom">
+                <img src="./image/viewer-icon/windowlevel.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-imageOpposite" data-original-title="图片反转" data-placement="bottom">
+                <img src="./image/viewer-icon/invert-image.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-rotate" data-original-title="图像旋转" data-placement="bottom">
+                <img src="./image/viewer-icon/rotate-right.png">
+            </div>
+            <div class="col-lg-2 col-sm-2" style="float: right;">
+                <div class="input-group">
+                    <input type="text" class="form-control" style="height: 40px;" placeholder="请输入病历号">
+                    <span class="input-group-btn">
+                        <button id="viewer-search" class="btn btn-default" type="button" style="height: 40px;">查询</button>
+                    </span>
+                </div>
+                <!-- /input-group -->
+            </div>
+            <!-- /.col-lg-6 -->
+            <div class="col-lg-2 col-sm-2" style="float: right;">
+                <div class="input-group col-lg-12">
+                    <button id="viewer-series-list" class="btn btn-default" type="button" style="height: 40px;width:100%;">图像列表</button>
+                </div>
+                <!-- /input-group -->
+            </div>
+        </div>
+        <div id="dicom-viewer-container" class="unselect">
+            <div id="viewer-canvas-container-1" class="viewer-canvas-container viewer-one-image viewer-canvas-active">
+                <canvas class="viewer-canvas" id="viewer-canvas1"></canvas>
+                <canvas class="hidden markCanvas" id="viewer-canvas1a" style="z-index: 2;background-color:rgba(0,0,0,0);position: absolute;"></canvas>
+                <div class="viewer-scale viewer-scale-show"></div>
+                <div class="viewer-top viewer-position-show"></div>
+                <div class="viewer-left viewer-position-show"></div>
+                <div class="viewer-left-top viewer-dicom-info-show"></div>
+                <div class="viewer-left-bottom viewer-dicom-info-show"></div>
+                <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
+                <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
+                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+        background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                </div>
+                <div class="modal dicomInfo" tabindex="-1" role="dialog">
+                    <div class="modal-content dicomContent" role="document">
+                        <div class="modal-header dicomInfoHeader">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;*</span>
+                            </button>
+                            <h4 class="modal-title">DICOM-Infomation-1</h4>
+                        </div>
+                        <div class="dicomInfoDetail modal-body">
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal -->
+            </div>
+            <div id="viewer-canvas-container-2" class="viewer-canvas-container viewer-one-image hidden">
+                <canvas class="viewer-canvas" id="viewer-canvas2"></canvas>
+                <canvas class="hidden markCanvas" id="viewer-canvas2a" style="z-index: 2;background-color:rgba(0,0,0,0);position: absolute;"></canvas>
+                <div class="viewer-scale viewer-scale-show"></div>
+                <div class="viewer-top viewer-position-show"></div>
+                <div class="viewer-left viewer-position-show"></div>
+                <div class="viewer-left-top viewer-dicom-info-show"></div>
+                <div class="viewer-left-bottom viewer-dicom-info-show"></div>
+                <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
+                <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
+                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+        background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                </div>
+                <!-- <div id="dicomInfo-2" class="dicomInfo hidden">
+                    <div class="dicomInfoHeader">DICOM-Infomation-2</div>
+                    <div class="dicomInfoDetail modal-body"></div>
+                </div> -->
+                <div class="modal dicomInfo" tabindex="-1" role="dialog">
+                    <div class="modal-content dicomContent" role="document">
+                        <div class="modal-header dicomInfoHeader">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;*</span>
+                            </button>
+                            <h4 class="modal-title">DICOM-Infomation-2</h4>
+                        </div>
+                        <div class="dicomInfoDetail modal-body">
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+            </div>
+            <div id="viewer-canvas-container-3" class="viewer-canvas-container viewer-one-image hidden">
+                <canvas class="viewer-canvas" id="viewer-canvas3"></canvas>
+                <canvas class="hidden markCanvas" id="viewer-canvas3a" style="z-index: 2;background-color:rgba(0,0,0,0);position: absolute;"></canvas>
+                <div class="viewer-scale viewer-scale-show"></div>
+                <div class="viewer-top viewer-position-show"></div>
+                <div class="viewer-left viewer-position-show"></div>
+                <div class="viewer-left-top viewer-dicom-info-show"></div>
+                <div class="viewer-left-bottom viewer-dicom-info-show"></div>
+                <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
+                <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
+                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+        background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                </div>
+                <!-- <div id="dicomInfo-3" class="dicomInfo hidden">
+                    <div class="dicomInfoHeader">DICOM-Infomation-3</div>
+                    <div class="dicomInfoDetail"></div>
+                </div> -->
+                <div class="modal dicomInfo" tabindex="-1" role="dialog">
+                    <div class="modal-content dicomContent" role="document">
+                        <div class="modal-header dicomInfoHeader">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;*</span>
+                            </button>
+                            <h4 class="modal-title">DICOM-Infomation-3</h4>
+                        </div>
+                        <div class="dicomInfoDetail modal-body">
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+            </div>
+            <div id="viewer-canvas-container-4" class="viewer-canvas-container viewer-one-image hidden">
+                <canvas class="viewer-canvas" id="viewer-canvas4"></canvas>
+                <canvas class="hidden markCanvas" id="viewer-canvas4a" style="z-index: 2;background-color:rgba(0,0,0,0);position: absolute;"></canvas>
+                <div class="viewer-scale viewer-scale-show"></div>
+                <div class="viewer-top viewer-position-show"></div>
+                <div class="viewer-left viewer-position-show"></div>
+                <div class="viewer-left-top viewer-dicom-info-show"></div>
+                <div class="viewer-left-bottom viewer-dicom-info-show"></div>
+                <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
+                <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
+                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+        background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                </div>
+                <!-- <div id="dicomInfo-4" class="dicomInfo hidden">
+                    <div class="dicomInfoHeader">DICOM-Infomation-4</div>
+                    <div class="dicomInfoDetail"></div>
+                </div> -->
+                <div class="modal dicomInfo" tabindex="-1" role="dialog">
+                    <div class="modal-content dicomContent" role="document">
+                        <div class="modal-header dicomInfoHeader">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;*</span>
+                            </button>
+                            <h4 class="modal-title">DICOM-Infomation-4</h4>
+                        </div>
+                        <div class="dicomInfoDetail modal-body">
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+            </div>
+        </div>
+        <!-- <div id="viewer-series-content" class="hidden">
+            <div id="viewer-series-header">
+                <div>patientID：
+                    <span class="series-patientID"></span>
+                </div>
+            </div>
+            <table class="yh-col-12 table table-hover table-striped table-light table-condensed ">
+                <thead class="yh-col-12">
+                    <tr class="yh-col-12 active table-dark">
+                        <th class="yh-col-1">SeriesNumber</th>
+                        <th class="yh-col-7">Series</th>
+                        <th class="yh-col-1">Preview</th>
+                        <th class="yh-col-1">Modality</th>
+                        <th class="yh-col-1">Date</th>
+                        <th class="yh-col-1">Load</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="">
+                        <td class="yh-col-1 model-framework">1</td>
+                        <td class="yh-col-7 model-name text-primary">SEGMENT 75% 0.92s Cardiac 0.5 CE</td>
+                        <td class="yh-col-1 model-framework">
+                            <image></image>
+                        </td>
+                        <td class="yh-col-1 model-status">CT</td>
+                        <td class="yh-col-1 model-submitted">2017/03/06</td>
+                        <td class="yh-col-1 model-submitted">
+                            <button class="btn btn-xs btn-primary">load</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> -->
+        <div id="viewer-series-content" class="modal-content hidden">
+            <div class="viewer-series-header modal-header">
+                <button type="button" class="close viewer-series-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">patientUID：
+                    <span class="series-patientID"></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <table class="yh-col-12 table table-hover table-striped table-condensed ">
+                    <thead class="yh-col-12">
+                        <tr class="yh-col-12 table-dark">
+                            <th class="yh-col-1">SeriesNumber</th>
+                            <th class="yh-col-7">Series</th>
+                            <th class="yh-col-1">Preview</th>
+                            <th class="yh-col-1">Modality</th>
+                            <th class="yh-col-1">Date</th>
+                            <th class="yh-col-1">Load</th>
+                        </tr>
+                    </thead>
+                    <tbody class="modal-row">
+                        <!-- <tr class="">
+                            <td class="yh-col-1 model-framework">1</td>
+                            <td class="yh-col-7 model-name text-primary">SEGMENT 75% 0.92s Cardiac 0.5 CE</td>
+                            <td class="yh-col-1 model-framework">
+                                <image></image>
+                            </td>
+                            <td class="yh-col-1 model-status">CT</td>
+                            <td class="yh-col-1 model-submitted">2017/03/06</td>
+                            <td class="yh-col-1 model-submitted">
+                                <button class="btn btn-xs btn-primary">load</button>
+                            </td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="viewer-background" class="hidden"></div>
+    </div>
+</body>
+<!--默认js文件-->
+<script src="./js/jquery-3.1.1.min.js" type="text/javascript"></script>
+<script src="./js/bootstrap.js" type="text/javascript"></script>
+<script src="js/paper-full.min.js" type="text/javascript"></script>
+<script src="js/dicom-header.json4.17.js" type="text/javascript"></script>
+<script src="js/patientBasicInfo.js" type="text/javascript"></script>
+<script src="js/dicom-viewer.js" type="text/javascript"></script>
+<script src="js/jquery.base64.js" type="text/javascript"></script>
+
+</html>

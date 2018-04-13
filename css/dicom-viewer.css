@@ -1,0 +1,199 @@
+html{height:100%;width:100%;}
+body{height:100%;margin:0;}
+#viewer-body{
+    height:100%;
+    margin:0;
+    position: relative;
+}
+#viewer-icon-container {
+    z-index: 1;
+    height: 60px;
+    width:100%;
+    padding-top:20px;
+    padding-left: 2px;
+    background-color: #f3f3f3;
+    position:absolute;
+}
+.viewer-icon{
+    float: left;
+    width: 40px;
+    height: 40px;
+    margin-right: 2px;
+    position: relative;
+}
+.viewer-icon-mouseup {
+    border: outset 2px #cccccc;
+}
+.viewer-icon-mousedown{
+    border: inset 2px #cccccc;
+}
+.viewer-icon img{
+    width:100%;
+    height:100%;
+}
+#dicom-viewer-container{
+    padding-top:60px;
+    position: relative;
+    height:100%;
+    width:100%;
+}
+#viewer-series-content{
+    /* border: 1px solid rgba(0,0,0,.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+    border-radius: 4px;
+    padding: 10px; */
+    overflow: auto;
+    z-index:3;
+    position: absolute;
+    height:60%;
+    width:60%;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    /* background-color:#eee; */
+}
+#viewer-background{
+    z-index:2;
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: #0000008a;
+}
+.viewer-one-image{
+    position: relative;
+    height:100%;
+    width:100%;
+}
+.viewer-four-image{
+    float: left;
+    position: relative;
+    height:50%;
+    width:50%;
+}
+.viewer-canvas-container {
+    background-color: black;
+    border: #fff solid 2px;
+    padding: 1px;
+}
+.viewer-canvas-active{
+    border: #cfa317 solid 2px;
+}
+.viewer-canvas{
+    position: relative;
+    float: left;
+}
+.viewer-dicom-info-show{
+    color:#fff;
+    position:absolute;
+    font-size:13px;
+    font-weight: lighter;
+}
+.viewer-dicom-info-show>p{
+    margin:5px;
+}
+.viewer-left-info-show>p{
+    text-align: right;
+}
+.viewer-position-show{
+    position:absolute;
+    color: #ea6767;
+    font-weight: 500;
+    font-size:20px;
+}
+.viewer-scale-show{
+    position:absolute;
+    color: #fff;
+    font-weight:lighter;
+    font-size:15px;
+}
+.viewer-top{
+    top:5px;
+}
+.viewer-left{
+    left:5px;
+}
+.viewer-scale{
+    bottom:5px;
+}
+.viewer-left-top{
+    left:5px;
+    top:5px;
+}
+.viewer-left-bottom{
+    left:5px;
+    bottom:5px;
+}
+.viewer-right-top{
+    right:5px;
+    top:5px;
+}
+.viewer-right-bottom{
+    right:5px;
+    bottom:5px;
+}
+.hidden{
+    display: none;
+}
+
+.unselect{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+.cursorPointer{
+    cursor: pointer;
+}
+
+.cursorCross{
+    cursor: crosshair;
+}
+
+.cursorMove{
+    cursor: move;
+}
+
+.threeEvents{
+    position : absolute;
+    left : 20px;
+    top : 100px;
+    width : 85px;
+    height : 40px;
+    background-color : #DDDDDD;
+}
+
+.threeIcons{
+    width:50%;
+    height:100%;
+    background-size:contain;
+    background-repeat:no-repeat;
+    position:absolute;
+}
+
+.dicomContent {
+    position: absolute;
+    top: 20%;
+    height: 60%;
+    left: 30%;
+    width: 40%;
+}
+.dicomInfoHeader{
+    position: relative;
+    height:10%;
+}
+.dicomInfoDetail{
+    height:90%;
+    position: relative;
+    overflow:auto;
+}
+
+.threeLength{
+    top: 150px;
+    position: absolute;;
+    left: 20px;
+    height: 20px;
+    color: #ffffff;
+}
