@@ -20,6 +20,7 @@ function getDicomm(patientRes,studyNum,SeriesNum){
     patientInfo.SeriesDate = patientRes.Series[SeriesNum].SeriesDate;
     patientInfo.SeriesTime = patientRes.Series[SeriesNum].SeriesTime;
     patientInfo.SeriesNumber = patientRes.Series[SeriesNum].SeriesNumber;
+    patientInfo.SeriesUID = patientRes.Series[SeriesNum].SeriesUID;
 
     patientInfo.WindowCenter = patientRes.Series[SeriesNum].WindowCenter;
     patientInfo.WindowWidth = patientRes.Series[SeriesNum].WindowWidth;
