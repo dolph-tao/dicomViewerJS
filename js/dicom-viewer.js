@@ -35,12 +35,12 @@
   // var currentDicomHeader = getDicom();
   var currentDicomHeader;
   // var imageFolder = currentDicomHeader.seriesAddress.address;
-  var imageNameExtension = ".png";
+  // var imageNameExtension = ".png";
   var deg = Math.PI / 180;
   var PATIENT_URL =
     // "https://miva.vico-lab.com/dicom-viewerAPI/PatientInfoGetServlet";
     "http://127.0.0.1:8080/dicom-viewer/PatientInfoGetServlet";
-  //当前容器和画布ID
+  //当前容器和画布ID"0300965773"
   //保留命名，预计支持两种模式，1.不同canvas显示同一序列多张图。2.不同canvas显示不同序列
   var containerIDs = [
     "viewer-canvas-container-1",
@@ -54,6 +54,8 @@
   var containerInfo = {};
   containerInfo.loadContainerInfo = function(containerId) {
     this[containerId] = {
+      currentSeriesUID : currentDicomHeader.SeriesUID,
+      currentInsanceFrame : 0,
       //容器ID
       $container: $("#" + containerId),
       containerHeader:currentDicomHeader,
@@ -93,6 +95,16 @@
       zoom: ""
     };
   };
+
+  //websocket获取图片参数
+  var IMAGEWEBSOCKETURL = "ws://127.0.0.1:8080/dicom-viewer/ImageByteGet";
+  var webSocket;
+  // var ImgSeriesUID = "733ef38fea614a47b843a63db10313b2";
+  var ImgSeriesUID ;
+  var SeriesUID;
+  var ImgIntanceFrame = "0";
+  var ImgPageNum = "10";
+  var PatientImageInfoIndex = '{"SeriesUID":"'+ImgSeriesUID+'","InstanceFrame":"'+ImgIntanceFrame+'","Pages":"'+ImgPageNum+'"}';
   //滚轮锁定
   var wheelBlock = 0;
   //Canvas初始化
@@ -214,8 +226,8 @@
   
 
   //加载病人
-  function loadPatient() {
-    getPatientInfo("0300965773");
+  function loadPatient(patientUID) {
+    getPatientInfo(patientUID);
   }
   //加载序列
   function loadSeries(containerId) {
@@ -330,10 +342,13 @@
     $("#viewer-series-list").click(function() {
       $("#viewer-series-content").removeClass("hidden");
       $("#viewer-background").removeClass("hidden");
+        //获取病人图片
+     
       // loadSeries(currentContainerID);
     });
     $("#viewer-search").click(function() {
-      loadPatient();
+      loadPatient($("#search-patientid").val());
+      ImageWebsocketInit();
     });
     $("#viewer-background").click(function() {
       $("#viewer-series-content").addClass("hidden");
@@ -450,96 +465,96 @@
   //初始化装载图片路径
   //================
 
-  function initializeImagePath() {
-    var str;
-    for (var i = 1; i <= currentDicomHeader.NumberOfSlices; i++) {
-      str = "00000" + i;
-      str = str.substring(str.length - 5, str.length);
-      imageName.push(imageFolder + str + imageNameExtension);
-    }
-  }
+  // function initializeImagePath() {
+  //   var str;
+  //   for (var i = 1; i <= currentDicomHeader.NumberOfSlices; i++) {
+  //     str = "00000" + i;
+  //     str = str.substring(str.length - 5, str.length);
+  //     imageName.push(imageFolder + str + imageNameExtension);
+  //   }
+  // }
 
   //获取接收的图片bytebuffer
   var ImgByteBuffer=new Array();
   var ImgByteBufferCount = 0;
 
 
-
-  function loadPatientSeriesImg(SeriesUID){
-    //websocket获取图片参数
-  var IMAGEWEBSOCKETURL = "ws://127.0.0.1:8080/dicom-viewer/ImageByteGet";
-  // var ImgSeriesUID = "733ef38fea614a47b843a63db10313b2";
-  var ImgSeriesUID = SeriesUID;
-  ImgSeriesUID = "733ef38fea614a47b843a63db10313b2";
-  var ImgIntanceFrame = "0";
-  var ImgPageNum = "10";
-  var PatientImageInfoIndex = '{"SeriesUID":"'+ImgSeriesUID+'","InstanceFrame":"'+ImgIntanceFrame+'","Pages":"'+ImgPageNum+'"}';
-  
-  //获取病人图片
-  var webSocket = new WebSocket(IMAGEWEBSOCKETURL);
-  
+function ImageWebsocketInit(){
+  webSocket = new WebSocket(IMAGEWEBSOCKETURL);
   webSocket.onerror = function(event) {
-          alert(event.data);
-      };
+    alert(event.data);
+  };
+  //与WebSocket建立连接
+  webSocket.onopen = function(event) {
     
-    
-    //与WebSocket建立连接
-      webSocket.onopen = function(event) {
-        webSocket.send(PatientImageInfoIndex);
-      };
-      
+  };
+
   //处理服务器返回的信息
-      webSocket.onmessage = function(event) {
-          var reader = new FileReader();
-          
-          reader.onload = function (eve) {
-              if (eve.target.readyState == FileReader.DONE) {
-                // ImgByteBuffer.push(this.result);
-                var nameFrame1 = $.base64.decode(this.result.split(",")[1]);
-                var nameFrame = nameFrame1.split("---")[0];
-                var temp = "data:"+nameFrame+";base64,"
-                var dicomFrame = temp+$.base64.encode(nameFrame1.split("---")[1]);
-                nameFrame = nameFrame.split("--")[1];
-                ImgByteBuffer[nameFrame] = dicomFrame;
-              }
-              if(ImgByteBuffer.length>10){
-                loadSeries(currentContainerID);
-              }
-          };
-          reader.readAsDataURL(event.data);
-         }
+  webSocket.onmessage = function(event) {
+      var reader = new FileReader();
       
-      webSocket.onclose = function () {
-          document.getElementById('messages').innerHTML = '连接已断开';
-      }
+      reader.onload = function (eve) {
+          if (eve.target.readyState == FileReader.DONE) {
+            // ImgByteBuffer.push(this.result);
+            var nameFrame1 = $.base64.decode(this.result.split(",")[1]);
+            var nameFrame = nameFrame1.split("---")[0];
+            var temp = "data:"+nameFrame+";base64,"
+            var dicomFrame = temp+$.base64.encode(nameFrame1.split("---")[1]);
+            nameFrame = nameFrame.split("--")[1];
+            ImgByteBuffer[nameFrame] = dicomFrame;
+          }
+          if((nameFrame%10===1)||(ImgByteBuffer.length-1)===currentDicomHeader.NumberOfSlices){
+            if(containerInfo[currentContainerID]!=null){
+              adLoad();
+            }
+            else loadSeries(currentContainerID);
+            
+          }
+      };
+      reader.readAsDataURL(event.data);
+    }
     
+    webSocket.onclose = function () {
+    }
+}
+
+
+function loadPatientSeriesImg(instantSeriesUID){
+  PatientImageInfoIndex = '{"SeriesUID":"'+instantSeriesUID+'","InstanceFrame":"'+ImgIntanceFrame+'","Pages":"'+ImgPageNum+'"}';
+  webSocket.send(PatientImageInfoIndex);   
   }
+
+function loadRestSeriesImg(){
+  var a  = containerInfo[currentContainerID];
+  PatientImageInfoIndex = '{"SeriesUID":"'+containerInfo[currentContainerID].currentSeriesUID+'","InstanceFrame":"'+containerInfo[currentContainerID].currentInsanceFrame+'","Pages":"'+ImgPageNum+'"}';
+  webSocket.send(PatientImageInfoIndex); 
+}
   
 
-  //将ImgByteBuffer解析并为frameName和frameImg画到画布上去
-  function WebSocketImgDrawing(){
-    var imgObj = new Image();
+  // //将ImgByteBuffer解析并为frameName和frameImg画到画布上去
+  // function WebSocketImgDrawing(){
+  //   var imgObj = new Image();
 
-    var nameFrame1 = $.base64.decode(ImgByteBuffer[0].split(",")[1]);
-    var nameFrame = nameFrame1.split("---")[0];
-    var temp = "data:"+nameFrame+";base64,"
-    var dicomFrame = temp+$.base64.encode(nameFrame1.split("---")[1]);
+  //   var nameFrame1 = $.base64.decode(ImgByteBuffer[0].split(",")[1]);
+  //   var nameFrame = nameFrame1.split("---")[0];
+  //   var temp = "data:"+nameFrame+";base64,"
+  //   var dicomFrame = temp+$.base64.encode(nameFrame1.split("---")[1]);
 
 
-    imgObj.src = dicomFrame;
-    //待图片加载完后，将其显示在canvas上
-    var showImg = document.getElementById("cvs0");
+  //   imgObj.src = dicomFrame;
+  //   //待图片加载完后，将其显示在canvas上
+  //   var showImg = document.getElementById("cvs0");
 
-    var cvsx=showImg;
+  //   var cvsx=showImg;
 
-    (function (thisCvsx){
-        imgObj.onload = function () {
-            var ctx = thisCvsx.getContext('2d');
-            // ctx.drawImage(this, 0, 0);//this即是imgObj,保持图片的原始大小：470*480
-            ctx.drawImage(this, 0, 0, 520, 390);//改变图片的大小到520*390
-        }
-    })(cvsx)
-  }
+  //   (function (thisCvsx){
+  //       imgObj.onload = function () {
+  //           var ctx = thisCvsx.getContext('2d');
+  //           // ctx.drawImage(this, 0, 0);//this即是imgObj,保持图片的原始大小：470*480
+  //           ctx.drawImage(this, 0, 0, 520, 390);//改变图片的大小到520*390
+  //       }
+  //   })(cvsx)
+  // }
 
   //加载首张图片数据
   //===============
@@ -553,7 +568,7 @@
     ) {
       containerInfo[currentContainerID].currentImg =
         containerInfo[currentContainerID].adImg[
-          containerInfo[currentContainerID].currentImageCount - 1
+          containerInfo[currentContainerID].currentImageCount-1
         ];
       drawImg();
     } else {
@@ -576,27 +591,33 @@
   //预加载图片对象
   function adLoad() {
 
-    var countCurrentFrame = ImgByteBuffer.length;
-
-    var isLoad = false;
+    // var countCurrentFrame = ImgByteBuffer.length-containerInfo[currentContainerID].currentInsanceFrame;
+    
     var img = new Image();
-    img.src = ImgByteBuffer[1];
-    containerInfo[currentContainerID].adImg[1] = img;
+    img.src = ImgByteBuffer[containerInfo[currentContainerID].currentInsanceFrame+1];
+    containerInfo[currentContainerID].adImg[containerInfo[currentContainerID].currentInsanceFrame] = img;
+    containerInfo[currentContainerID].currentInsanceFrame= containerInfo[currentContainerID].adImg.length;
+    var isLoad = false;
+
     img.onload = function() {
       if (!isLoad) {
         loadCurrentImage();
         isLoad = true;
       }
     };
+    var countCurrentFrame =11;
     for (
       var i = 2;
       i < countCurrentFrame;
       i++
     ) {
       var img = new Image();
-      img.src = ImgByteBuffer[i];
-      containerInfo[currentContainerID].adImg[i] = img;
+      img.src = ImgByteBuffer[containerInfo[currentContainerID].currentInsanceFrame+i-1];
+      containerInfo[currentContainerID].adImg[containerInfo[currentContainerID].currentInsanceFrame+i-2] = img;
+      
     }
+    containerInfo[currentContainerID].currentInsanceFrame= containerInfo[currentContainerID].adImg.length;
+    // ImgByteBuffer.splice(0,ImgByteBuffer.length);
   }
 
   //显示图片数据到canvas
@@ -1301,8 +1322,15 @@
         } else if (delta < 0) {
           // 向下滚
           containerInfo[currentContainerID].currentImageCount <
-            containerInfo[currentContainerID].totalImageCount &&
+            containerInfo[currentContainerID].currentInsanceFrame &&
             containerInfo[currentContainerID].currentImageCount++;
+
+          if(containerInfo[currentContainerID].currentImageCount === (containerInfo[currentContainerID].currentInsanceFrame) && 
+          containerInfo[currentContainerID].currentInsanceFrame<containerInfo[currentContainerID].totalImageCount)
+          {
+            loadRestSeriesImg();
+
+          }
           refreshFrameInfo();
         }
         containerInfo[currentContainerID].exscale = 1;
