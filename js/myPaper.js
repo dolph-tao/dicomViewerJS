@@ -65,15 +65,7 @@
                 else if (parameters.isDrawing && !parameters.isSaved) {
                     currentPath.add(event.point);
                 }
-                /*else if (!parameters.isDrawing && !parameters.isSaved) {
-                 //绘制完成后，若鼠标点击路径外则清除路径
-                 if (!parameters.isDragPath && !parameters.isDragPoint) {
-                 currentPath.removeSegments();
-                 parameters.isSaved = true;
-                 currentPath.closed = false;
-                 currentPath.fullySelected = false;
-                 }
-                 }*/
+
             }
             else if (event.event.which === 3) {
                 if (parameters.isDrawing && !_this.isSaved) {

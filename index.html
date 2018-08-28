@@ -29,12 +29,7 @@
             <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-angle" data-original-title="角度测量" data-placement="bottom">
                 <img src="./image/viewer-icon/angle.png">
             </div>
-            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-mark" data-original-title="标注工具" data-placement="bottom">
-                <img src="./image/viewer-icon/label.png">
-            </div>
-            <div class="viewer-icon viewer-icon-mouseup tooltips" data-original-title="保存标记" data-placement="bottom">
-                <img src="./image/viewer-icon/save.png">
-            </div>
+
             <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-scale" data-original-title="滚动缩放" data-placement="bottom">
                 <img src="./image/viewer-icon/zoom.png">
             </div>
@@ -56,6 +51,16 @@
             <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-rotate" data-original-title="图像旋转" data-placement="bottom">
                 <img src="./image/viewer-icon/rotate-right.png">
             </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-mark" data-original-title="标注工具" data-placement="bottom" data-toggle="modal" data-target="#myModal">
+                <img src="./image/viewer-icon/label.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-saveMark" data-original-title="保存标记" data-placement="bottom">
+                <img src="./image/viewer-icon/save.png">
+            </div>
+            <div class="viewer-icon viewer-icon-mouseup tooltips" id="viewer-3Dmark" data-original-title="生成3D标记" data-placement="bottom">
+                <img src="./image/viewer-icon/3D.png">
+            </div>
+           
             <div class="col-lg-2 col-sm-2" style="float: right;">
                 <div class="input-group">
                     <input id="search-patientid" type="text" class="form-control" style="height: 40px;" placeholder="请输入病历号">
@@ -84,9 +89,9 @@
                 <div class="viewer-left-bottom viewer-dicom-info-show"></div>
                 <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
                 <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
-                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+                <div id="viewer-partDiv1" class="hidden" style="position: absolute;left:500px;top:150px;
         background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
-                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas1"></canvas>
                 </div>
                 <div class="modal dicomInfo" tabindex="-1" role="dialog">
                     <div class="modal-content dicomContent" role="document">
@@ -113,9 +118,9 @@
                 <div class="viewer-left-bottom viewer-dicom-info-show"></div>
                 <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
                 <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
-                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+                <div id="viewer-partDiv2" class="hidden" style="position: absolute;left:500px;top:150px;
         background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
-                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas2"></canvas>
                 </div>
                 <!-- <div id="dicomInfo-2" class="dicomInfo hidden">
                     <div class="dicomInfoHeader">DICOM-Infomation-2</div>
@@ -145,9 +150,9 @@
                 <div class="viewer-left-bottom viewer-dicom-info-show"></div>
                 <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
                 <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
-                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+                <div id="viewer-partDiv3" class="hidden" style="position: absolute;left:500px;top:150px;
         background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
-                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas3"></canvas>
                 </div>
                 <!-- <div id="dicomInfo-3" class="dicomInfo hidden">
                     <div class="dicomInfoHeader">DICOM-Infomation-3</div>
@@ -177,9 +182,9 @@
                 <div class="viewer-left-bottom viewer-dicom-info-show"></div>
                 <div class="viewer-right-top viewer-dicom-info-show viewer-left-info-show"></div>
                 <div class="viewer-right-bottom viewer-dicom-info-show viewer-left-info-show"></div>
-                <div id="viewer-partDiv" class="hidden" style="position: absolute;left:500px;top:150px;
+                <div id="viewer-partDiv4" class="hidden" style="position: absolute;left:500px;top:150px;
         background-color: #777777;z-index: 3;height:100px;width: 100px;cursor: pointer;">
-                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas"></canvas>
+                    <canvas style="position: relative;height: 100px;width: 100px" id="partCanvas4"></canvas>
                 </div>
                 <!-- <div id="dicomInfo-4" class="dicomInfo hidden">
                     <div class="dicomInfoHeader">DICOM-Infomation-4</div>
@@ -248,13 +253,13 @@
                         <tr class="yh-col-12 table-dark">
                             <th class="yh-col-1">SeriesNumber</th>
                             <th class="yh-col-7">Series</th>
-                            <th class="yh-col-1">Preview</th>
+                            <!-- <th class="yh-col-1">Preview</th> -->
                             <th class="yh-col-1">Modality</th>
                             <th class="yh-col-1">Date</th>
                             <th class="yh-col-1">Load</th>
                         </tr>
                     </thead>
-                    <tbody class="modal-row">
+                    <tbody id = "SeriesTbody" class="modal-row">
                         <!-- <tr class="">
                             <td class="yh-col-1 model-framework">1</td>
                             <td class="yh-col-7 model-name text-primary">SEGMENT 75% 0.92s Cardiac 0.5 CE</td>
@@ -273,14 +278,45 @@
         </div>
         <div id="viewer-background" class="hidden"></div>
     </div>
+
+    
+  
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="标记曲线选择" id="myModalLabel">选择标记类型</h4>
+        </div>
+        <div class="modal-body">
+            <table >
+                    <tr>
+                            <th> <button type="button" id="viewer-mark-rectangle" class="btn btn-success btn-lg" data-dismiss="modal" style="margin-left: 50px">矩形线</button></th>
+                            <th><span class="viewer-icon" style="margin-right: 80px"><img src="./image/viewer-icon/60-marquee.png"></span></th>
+                            <th> <button type="button" id="viewer-mark-hand" class="btn btn-success btn-lg" data-dismiss="modal" >手绘线</button></th>
+                            <th><span class="viewer-icon"><img src="./image/viewer-icon/112-pen.png"></span></th>
+                    </tr>
+            </table>
+           
+            
+            
+        </div>
+        <div class="modal-footer">
+          
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <!--默认js文件-->
 <script src="./js/jquery-3.1.1.min.js" type="text/javascript"></script>
 <script src="./js/bootstrap.js" type="text/javascript"></script>
 <script src="js/paper-full.min.js" type="text/javascript"></script>
-<script src="js/dicom-header.json4.17.js" type="text/javascript"></script>
+<!-- <script src="js/dicom-header.json4.17.js" type="text/javascript"></script> -->
+<script src="js/dicom-viewer-config.js" type="text/javascript"></script>
 <script src="js/patientBasicInfo.js" type="text/javascript"></script>
-<script src="js/dicom-viewer.js" type="text/javascript"></script>
 <script src="js/jquery.base64.js" type="text/javascript"></script>
+<script src="js/dicom-viewer.js" type="text/javascript"></script>
 
 </html>
